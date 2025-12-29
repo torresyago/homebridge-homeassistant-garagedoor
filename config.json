@@ -1,0 +1,8 @@
+{
+  "accessory": "HomeAssistantGarageDoor",
+  "name": "Puerta1 HA",
+  "haUrl": "http://192.168.68.239:8123",
+  "haToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "entityId": "switch.Puerta1"
+}
+

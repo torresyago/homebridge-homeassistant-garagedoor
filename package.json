@@ -1,0 +1,25 @@
+{
+  "name": "homebridge-homeassistant-garagedoor",
+  "version": "1.0.0",
+  "description": "Homebridge plugin for Home Assistant garage door control",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "homebridge-plugin",
+    "homebridge",
+    "homeassistant",
+    "garage",
+    "door"
+  ],
+  "author": "yago",
+  "license": "MIT",
+  "engines": {
+    "homebridge": ">=1.0.0",
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}

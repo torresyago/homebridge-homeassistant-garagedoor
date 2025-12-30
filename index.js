@@ -1,6 +1,12 @@
 'use strict';
 
-const fetch = require('node-fetch');
+let fetch;
+try {
+  fetch = require('node-fetch');
+} catch (e) {
+  // Node 18+ fetch global
+  fetch = global.fetch;
+}
 
 module.exports = (homebridge) => {
   const { Service, Characteristic } = homebridge.hap;
@@ -11,18 +17,17 @@ module.exports = (homebridge) => {
       this.name = config.name;
       this.haUrl = config.haUrl;
       this.entityId = config.entityId;
-      this.haToken = config.haToken;
+      this.haToken = config.haToken || process.env.HA_TOKEN;
       this.pollInterval = config.pollInterval || 30;
       
       this.currentState = Characteristic.CurrentDoorState.CLOSED;
       this.targetState = Characteristic.TargetDoorState.CLOSED;
-      this.isUpdating = false; // ✅ ANTI-LOOP
+      this.isUpdating = false;
       
       this.service = new Service.GarageDoorOpener(this.name);
       this.service.getCharacteristic(Characteristic.TargetDoorState)
         .on('set', this.setTargetState.bind(this));
       
-      // SIEMPRE CLOSED al inicio
       this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
       this.service.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
       
@@ -32,7 +37,6 @@ module.exports = (homebridge) => {
     
     async setTargetState(newState, callback) {
       if (this.isUpdating) {
-        this.log(`[${this.name}] Skip (updating)`);
         return callback();
       }
       
@@ -40,8 +44,6 @@ module.exports = (homebridge) => {
       
       if (newState === Characteristic.TargetDoorState.OPEN) {
         await this.sendHACommand('turn_on');
-        
-        // ✅ AUTO-CLOSED (sin loop)
         setTimeout(() => {
           this.log(`[${this.name}] ✅ AUTO-CLOSED después OPEN`);
           this.forceClosed();
@@ -53,19 +55,11 @@ module.exports = (homebridge) => {
     
     forceClosed() {
       if (this.isUpdating) return;
-      
       this.isUpdating = true;
       this.log(`[${this.name}] ✅ Fuerza CLOSED`);
-      
       this.currentState = Characteristic.CurrentDoorState.CLOSED;
-      this.targetState = Characteristic.TargetDoorState.CLOSED;
-      
-      // ✅ SIN setCharacteristic(TargetDoorState) = NO loop
       this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
-      
-      setTimeout(() => {
-        this.isUpdating = false;
-      }, 100);
+      setTimeout(() => { this.isUpdating = false; }, 100);
     }
     
     async sendHACommand(command) {
@@ -78,12 +72,13 @@ module.exports = (homebridge) => {
           },
           body: JSON.stringify({ entity_id: this.entityId })
         });
-        
         if (response.ok) {
           this.log(`[${this.name}] HA ${command} → 200 OK`);
+        } else {
+          this.log(`[${this.name}] HA ${command} → ${response.status}`);
         }
       } catch (error) {
-        this.log(`[${this.name}] HA ERROR:`, error.message);
+        this.log(`[${this.name}] HA ERROR: ${error.message}`);
       }
     }
     

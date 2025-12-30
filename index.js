@@ -3,7 +3,7 @@
 const axios = require('axios');
 
 class HomeAssistantGarageDoor {
-  constructor(log, config) {
+  constructor(log, config, api) {
     this.log = log;
     this.name = config.name;
     this.haUrl = config.haUrl;
@@ -14,6 +14,10 @@ class HomeAssistantGarageDoor {
     this.targetState = 'CLOSED';
     this.polling = null;
 
+    // ✅ FIX: API params para Service/Characteristic
+    this.Service = api.hap.Service;
+    this.Characteristic = api.hap.Characteristic;
+
     this.log(`[${this.name}] Initializing HomeAssistantGarageDoor accessory...`);
     
     this.service = new this.Service.GarageDoorOpener(this.name);
@@ -23,12 +27,11 @@ class HomeAssistantGarageDoor {
   }
 
   initHA() {
-    this.log(`[${this.name}] [${this.name}] Initialized - HA: ${this.haUrl} (${this.entityId})`);
+    this.log(`[${this.name}] Initialized - HA: ${this.haUrl} (${this.entityId})`);
     this.startPolling();
   }
 
   async sendHACommand(state) {
-    // 🔧 FIX v1.0.3: Skip request si estado coincide
     if (this.currentState === state) {
       this.log(`[${this.name}] State matches target (${state}) → Skipping HA request`);
       return;
@@ -96,6 +99,9 @@ class HomeAssistantGarageDoor {
         this.sendHACommand(newState);
         callback();
       });
+
+    this.service.getCharacteristic(this.Characteristic.CurrentDoorState)
+      .updateValue(this.Characteristic.CurrentDoorState.CLOSED);
 
     return [this.service];
   }

@@ -1,18 +1,13 @@
 {
   "name": "homebridge-homeassistant-garagedoor",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Homebridge plugin to control Home Assistant switches as Garage Doors",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "homebridge-plugin",
-    "homebridge",
-    "homeassistant",
-    "garage",
-    "door",
-    "switch"
+    "homebridge-plugin"
   ],
   "author": "torresyago",
   "license": "MIT",
@@ -32,6 +27,43 @@
     "axios": "^1.6.0"
   },
   "homebridge": {
-    "pluginAlias": "HomeAssistantGarageDoor"
+    "pluginAlias": "Home Assistant Garage Door",
+    "pluginConfigSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name",
+          "required": true,
+          "default": "Garage Door"
+        },
+        "haUrl": {
+          "type": "string",
+          "title": "Home Assistant URL",
+          "required": true,
+          "placeholder": "http://192.168.1.100:8123"
+        },
+        "haToken": {
+          "type": "string",
+          "title": "HA Long-Lived Access Token",
+          "required": true,
+          "placeholder": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+        },
+        "entityId": {
+          "type": "string",
+          "title": "Entity ID",
+          "required": true,
+          "default": "switch.garage_door",
+          "placeholder": "switch.Puerta1"
+        },
+        "pollInterval": {
+          "type": "number",
+          "title": "Poll Interval (seconds)",
+          "required": false,
+          "default": 30
+        }
+      }
+    }
   }
 }
+

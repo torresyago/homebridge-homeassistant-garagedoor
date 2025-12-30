@@ -67,7 +67,10 @@ class HomeAssistantGarageDoor {
       );
       
       const haState = response.data.state;
-      const doorState = haState === 'on' ? 'OPEN' : 'CLOSED';
+      this.log(`[${this.name}] Poll: ALWAYS CLOSED (forced)`);
+          this.currentState = 'CLOSED';
+          this.service.setCharacteristic(this.Characteristic.CurrentDoorState, this.Characteristic.CurrentDoorState.CLOSED);
+          return;
       
       if (this.currentState !== doorState) {
         this.currentState = doorState;

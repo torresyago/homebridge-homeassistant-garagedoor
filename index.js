@@ -1,120 +1,85 @@
 'use strict';
 
-const axios = require('axios');
-
-class HomeAssistantGarageDoor {
-  constructor(log, config, api) {
-    this.log = log;
-    this.name = config.name;
-    this.haUrl = config.haUrl;
-    this.haToken = config.haToken;
-    this.entityId = config.entityId;
-    this.pollInterval = config.pollInterval || 30;
-    this.currentState = 'CLOSED';
-    this.targetState = 'CLOSED';
-    this.polling = null;
-
-    // ✅ FIX: API params para Service/Characteristic
-    this.Service = api.hap.Service;
-    this.Characteristic = api.hap.Characteristic;
-
-    this.log(`[${this.name}] Initializing HomeAssistantGarageDoor accessory...`);
-    
-    this.service = new this.Service.GarageDoorOpener(this.name);
-    this.service.setCharacteristic(this.Characteristic.TargetDoorState, this.Characteristic.TargetDoorState.CLOSED);
-    
-    this.initHA();
-  }
-
-  initHA() {
-    this.log(`[${this.name}] Initialized - HA: ${this.haUrl} (${this.entityId})`);
-    this.startPolling();
-  }
-
-  async sendHACommand(state) {
-    if (this.currentState === state) {
-      this.log(`[${this.name}] State matches target (${state}) → Skipping HA request`);
-      return;
-    }
-
-    const service = state === 'OPEN' ? 'turn_on' : 'turn_off';
-    try {
-      const response = await axios.post(
-        `${this.haUrl}/api/services/switch/${service}`,
-        { entity_id: this.entityId },
-        {
-          headers: {
-            'Authorization': `Bearer ${this.haToken}`,
-            'Content-Type': 'application/json'
-          },
-          timeout: 5000
-        }
-      );
-      this.log(`[${this.name}] HA ${service} → ${response.status}: ${JSON.stringify(response.data)}`);
-    } catch (error) {
-      this.log(`[${this.name}] HA Error: ${error.message}`);
-    }
-  }
-
-  async pollHA() {
-    try {
-      const response = await axios.get(
-        `${this.haUrl}/api/states/${this.entityId}`,
-        {
-          headers: { 'Authorization': `Bearer ${this.haToken}` },
-          timeout: 5000
-        }
-      );
-      
-      const haState = response.data.state;
-      this.log(`[${this.name}] Poll: ALWAYS CLOSED (forced)`);
-          this.currentState = 'CLOSED';
-          this.service.setCharacteristic(this.Characteristic.CurrentDoorState, this.Characteristic.CurrentDoorState.CLOSED);
-          return;
-      
-      if (this.currentState !== doorState) {
-        this.currentState = doorState;
-        this.service.setCharacteristic(this.Characteristic.CurrentDoorState, 
-          doorState === 'OPEN' ? 
-            this.Characteristic.CurrentDoorState.OPEN : 
-            this.Characteristic.CurrentDoorState.CLOSED
-        );
-        this.log(`[${this.name}] Poll: ${doorState} (${haState})`);
-      }
-    } catch (error) {
-      this.log(`[${this.name}] Poll error: ${error.message}`);
-    }
-  }
-
-  startPolling() {
-    if (this.pollInterval > 0) {
-      this.polling = setInterval(() => this.pollHA(), this.pollInterval * 1000);
-      this.log(`[${this.name}] Polling started (${this.pollInterval}s)`);
-    }
-  }
-
-  getServices() {
-    this.service.getCharacteristic(this.Characteristic.TargetDoorState)
-      .on('set', (value, callback) => {
-        const newState = value === this.Characteristic.TargetDoorState.OPEN ? 'OPEN' : 'CLOSED';
-        this.log(`[${this.name}] Target state: ${newState}`);
-        this.targetState = newState;
-        this.sendHACommand(newState);
-        this.service.setCharacteristic(this.Characteristic.CurrentDoorState, 
-          newState === 'OPEN' ? 
-            this.Characteristic.CurrentDoorState.OPEN : 
-            this.Characteristic.CurrentDoorState.CLOSED);
-        callback();
-      });
-
-    this.service.getCharacteristic(this.Characteristic.CurrentDoorState)
-      .updateValue(this.Characteristic.CurrentDoorState.CLOSED);
-
-    return [this.service];
-  }
-}
+const request = require('request');
 
 module.exports = (homebridge) => {
-  homebridge.registerAccessory("homebridge-homeassistant-garagedoor", "HomeAssistantGarageDoor", HomeAssistantGarageDoor);
+  const { Service, Characteristic } = homebridge.hap;
+  
+  class HomeAssistantGarageDoor {
+    constructor(log, config) {
+      this.log = log;
+      this.name = config.name;
+      this.haUrl = config.haUrl;
+      this.entityId = config.entityId;
+      this.pollInterval = config.pollInterval || 30;
+      
+      this.currentState = Characteristic.CurrentDoorState.CLOSED;
+      this.targetState = Characteristic.TargetDoorState.CLOSED;
+      
+      this.service = new Service.GarageDoorOpener(this.name);
+      this.service.getCharacteristic(Characteristic.TargetDoorState)
+        .on('set', this.setTargetState.bind(this));
+      
+      // SIEMPRE FUERZA CLOSED al inicio
+      this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
+      this.service.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
+      
+      this.log(`[${this.name}] Initialized - HA: ${this.haUrl} (${this.entityId})`);
+      this.startPolling();
+    }
+    
+    setTargetState(newState, callback) {
+      this.log(`[${this.name}] Target state: ${newState === Characteristic.TargetDoorState.OPEN ? 'OPEN' : 'CLOSED'}`);
+      
+      if (newState === Characteristic.TargetDoorState.OPEN) {
+        this.sendHACommand('turn_on');
+        
+        // ✅ AUTO-CLOSED INMEDIATO (1.5s)
+        setTimeout(() => {
+          this.log(`[${this.name}] ✅ AUTO-CLOSED después OPEN (1.5s)`);
+          this.currentState = Characteristic.CurrentDoorState.CLOSED;
+          this.targetState = Characteristic.TargetDoorState.CLOSED;
+          this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
+          this.service.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
+        }, 1500);
+      }
+      
+      // ✅ SIEMPRE fuerza CLOSED en TargetState
+      this.log(`[${this.name}] ✅ TargetState → Fuerza CurrentState CLOSED`);
+      this.currentState = Characteristic.CurrentDoorState.CLOSED;
+      this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
+      
+      callback();
+    }
+    
+    async sendHACommand(command) {
+      const url = `${this.haUrl}/api/services/switch/${command}`;
+      request.post({
+        url,
+        headers: { 'Authorization': `Bearer ${process.env.HA_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entity_id: this.entityId })
+      }, (err, res) => {
+        if (res && res.statusCode === 200) {
+          this.log(`[${this.name}] HA ${command} → 200: []`);
+        }
+      });
+    }
+    
+    async pollHA() {
+      this.log(`[${this.name}] Poll: ALWAYS CLOSED (forced)`);
+      this.currentState = Characteristic.CurrentDoorState.CLOSED;
+      this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
+    }
+    
+    startPolling() {
+      setInterval(() => this.pollHA(), this.pollInterval * 1000);
+      this.log(`[${this.name}] Polling started (${this.pollInterval}s)`);
+    }
+    
+    getServices() {
+      return [this.service];
+    }
+  }
+  
+  homebridge.registerAccessory('homebridge-homeassistant-garagedoor', 'HomeAssistantGarageDoor', HomeAssistantGarageDoor);
 };
-

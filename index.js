@@ -1,76 +1,107 @@
-var Service, Characteristic;
+'use strict';
+
 const axios = require('axios');
 
-module.exports = function(homebridge) {
-    Service = homebridge.hap.Service;
-    Characteristic = homebridge.hap.Characteristic;
-    homebridge.registerAccessory("homebridge-homeassistant-garagedoor", "HomeAssistantGarageDoor", HomeAssistantGarageDoor);
-};
-
-function HomeAssistantGarageDoor(log, config) {
+class HomeAssistantGarageDoor {
+  constructor(log, config) {
     this.log = log;
-    this.name = config.name || "Garage Door";
-    this.haUrl = config.haUrl || "http://192.168.68.239:8123";
+    this.name = config.name;
+    this.haUrl = config.haUrl;
     this.haToken = config.haToken;
-    this.entityId = config.entityId || "switch.Puerta1";
+    this.entityId = config.entityId;
+    this.pollInterval = config.pollInterval || 30;
+    this.currentState = 'CLOSED';
+    this.targetState = 'CLOSED';
+    this.polling = null;
+
+    this.log(`[${this.name}] Initializing HomeAssistantGarageDoor accessory...`);
     
-    // Estado inicial SIEMPRE CERRADO
-    this.currentState = Characteristic.CurrentDoorState.CLOSED;
+    this.service = new this.Service.GarageDoorOpener(this.name);
+    this.service.setCharacteristic(this.Characteristic.TargetDoorState, this.Characteristic.TargetDoorState.CLOSED);
     
-    this.service = new Service.GarageDoorOpener(this.name);
-    this.informationService = new Service.AccessoryInformation();
-    
-    this.informationService
-        .setCharacteristic(Characteristic.Manufacturer, "Home Assistant")
-        .setCharacteristic(Characteristic.Model, "Garage Door")
-        .setCharacteristic(Characteristic.SerialNumber, this.entityId);
-    
-    this.service.getCharacteristic(Characteristic.TargetDoorState)
-        .on('set', this.setTargetState.bind(this));
-    
-    this.service.getCharacteristic(Characteristic.CurrentDoorState)
-        .on('get', this.getCurrentState.bind(this))
-        .setValue(this.currentState);
-    
-    this.service.getCharacteristic(Characteristic.TargetDoorState)
-        .setValue(Characteristic.CurrentDoorState.CLOSED);
-    
-    this.log("[%s] Initialized - HA: %s (%s)", this.name, this.haUrl, this.entityId);
+    this.initHA();
+  }
+
+  initHA() {
+    this.log(`[${this.name}] [${this.name}] Initialized - HA: ${this.haUrl} (${this.entityId})`);
+    this.startPolling();
+  }
+
+  async sendHACommand(state) {
+    // 🔧 FIX v1.0.3: Skip request si estado coincide
+    if (this.currentState === state) {
+      this.log(`[${this.name}] State matches target (${state}) → Skipping HA request`);
+      return;
+    }
+
+    const service = state === 'OPEN' ? 'turn_on' : 'turn_off';
+    try {
+      const response = await axios.post(
+        `${this.haUrl}/api/services/switch/${service}`,
+        { entity_id: this.entityId },
+        {
+          headers: {
+            'Authorization': `Bearer ${this.haToken}`,
+            'Content-Type': 'application/json'
+          },
+          timeout: 5000
+        }
+      );
+      this.log(`[${this.name}] HA ${service} → ${response.status}: ${JSON.stringify(response.data)}`);
+    } catch (error) {
+      this.log(`[${this.name}] HA Error: ${error.message}`);
+    }
+  }
+
+  async pollHA() {
+    try {
+      const response = await axios.get(
+        `${this.haUrl}/api/states/${this.entityId}`,
+        {
+          headers: { 'Authorization': `Bearer ${this.haToken}` },
+          timeout: 5000
+        }
+      );
+      
+      const haState = response.data.state;
+      const doorState = haState === 'on' ? 'OPEN' : 'CLOSED';
+      
+      if (this.currentState !== doorState) {
+        this.currentState = doorState;
+        this.service.setCharacteristic(this.Characteristic.CurrentDoorState, 
+          doorState === 'OPEN' ? 
+            this.Characteristic.CurrentDoorState.OPEN : 
+            this.Characteristic.CurrentDoorState.CLOSED
+        );
+        this.log(`[${this.name}] Poll: ${doorState} (${haState})`);
+      }
+    } catch (error) {
+      this.log(`[${this.name}] Poll error: ${error.message}`);
+    }
+  }
+
+  startPolling() {
+    if (this.pollInterval > 0) {
+      this.polling = setInterval(() => this.pollHA(), this.pollInterval * 1000);
+      this.log(`[${this.name}] Polling started (${this.pollInterval}s)`);
+    }
+  }
+
+  getServices() {
+    this.service.getCharacteristic(this.Characteristic.TargetDoorState)
+      .on('set', (value, callback) => {
+        const newState = value === this.Characteristic.TargetDoorState.OPEN ? 'OPEN' : 'CLOSED';
+        this.log(`[${this.name}] Target state: ${newState}`);
+        this.targetState = newState;
+        this.sendHACommand(newState);
+        callback();
+      });
+
+    return [this.service];
+  }
 }
 
-HomeAssistantGarageDoor.prototype = {
-    getServices: function() {
-        return [this.informationService, this.service];
-    },
-
-    setTargetState: function(targetState, callback) {
-        this.log("[%s] Target state: %s", this.name, targetState === 0 ? "OPEN" : "CLOSED");
-        
-        const service = targetState === 0 ? "switch.turn_on" : "switch.turn_off";
-        
-        axios.post(`${this.haUrl}/api/services/switch/${service}`, 
-            { entity_id: this.entityId },
-            {
-                headers: {
-                    'Authorization': `Bearer ${this.haToken}`,
-                    'Content-Type': 'application/json'
-                },
-                timeout: 10000
-            }
-        )
-        .then(() => {
-            this.log("[%s] Command sent to HA: %s", this.name, service);
-            callback(null);
-        })
-        .catch(err => {
-            this.log("[%s] HA Error: %s", this.name, err.message);
-            callback(err);
-        });
-    },
-
-    getCurrentState: function(callback) {
-        // SIEMPRE devuelve CERRADO (como tu plugin anterior)
-        callback(null, this.currentState);
-    }
+module.exports = (homebridge) => {
+  homebridge.registerAccessory("homebridge-homeassistant-garagedoor", "HomeAssistantGarageDoor", HomeAssistantGarageDoor);
 };
 

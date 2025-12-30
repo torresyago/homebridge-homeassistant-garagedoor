@@ -1,7 +1,7 @@
 {
   "name": "homebridge-homeassistant-garagedoor",
-  "version": "1.0.1",
-  "description": "Homebridge plugin for Home Assistant garage door control",
+  "version": "1.0.2",
+  "description": "Homebridge plugin to control Home Assistant switches as Garage Doors",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,10 +11,19 @@
     "homebridge",
     "homeassistant",
     "garage",
-    "door"
+    "door",
+    "switch"
   ],
-  "author": "yago",
+  "author": "torresyago",
   "license": "MIT",
+  "homepage": "https://github.com/torresyago/homebridge-homeassistant-garagedoor#readme",
+  "bugs": {
+    "url": "https://github.com/torresyago/homebridge-homeassistant-garagedoor/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/torresyago/homebridge-homeassistant-garagedoor.git"
+  },
   "engines": {
     "homebridge": ">=1.0.0",
     "node": ">=18.0.0"
@@ -22,11 +31,8 @@
   "dependencies": {
     "axios": "^1.6.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/torresyago/homebridge-homeassistant-garagedoor.git"
-  },
   "homebridge": {
     "pluginAlias": "HomeAssistantGarageDoor"
   }
 }
+

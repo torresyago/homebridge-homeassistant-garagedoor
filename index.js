@@ -1,6 +1,6 @@
 'use strict';
 
-const request = require('request');
+const fetch = require('node-fetch');
 
 module.exports = (homebridge) => {
   const { Service, Characteristic } = homebridge.hap;
@@ -11,6 +11,7 @@ module.exports = (homebridge) => {
       this.name = config.name;
       this.haUrl = config.haUrl;
       this.entityId = config.entityId;
+      this.haToken = config.haToken;
       this.pollInterval = config.pollInterval || 30;
       
       this.currentState = Characteristic.CurrentDoorState.CLOSED;
@@ -28,47 +29,53 @@ module.exports = (homebridge) => {
       this.startPolling();
     }
     
-    setTargetState(newState, callback) {
+    async setTargetState(newState, callback) {
       this.log(`[${this.name}] Target state: ${newState === Characteristic.TargetDoorState.OPEN ? 'OPEN' : 'CLOSED'}`);
       
       if (newState === Characteristic.TargetDoorState.OPEN) {
-        this.sendHACommand('turn_on');
+        await this.sendHACommand('turn_on');
         
         // ✅ AUTO-CLOSED INMEDIATO (1.5s)
         setTimeout(() => {
           this.log(`[${this.name}] ✅ AUTO-CLOSED después OPEN (1.5s)`);
-          this.currentState = Characteristic.CurrentDoorState.CLOSED;
-          this.targetState = Characteristic.TargetDoorState.CLOSED;
-          this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
-          this.service.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
+          this.forceClosed();
         }, 1500);
       }
       
-      // ✅ SIEMPRE fuerza CLOSED en TargetState
-      this.log(`[${this.name}] ✅ TargetState → Fuerza CurrentState CLOSED`);
-      this.currentState = Characteristic.CurrentDoorState.CLOSED;
-      this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
-      
+      this.forceClosed();
       callback();
     }
     
-    async sendHACommand(command) {
-      const url = `${this.haUrl}/api/services/switch/${command}`;
-      request.post({
-        url,
-        headers: { 'Authorization': `Bearer ${process.env.HA_TOKEN}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ entity_id: this.entityId })
-      }, (err, res) => {
-        if (res && res.statusCode === 200) {
-          this.log(`[${this.name}] HA ${command} → 200: []`);
-        }
-      });
+    forceClosed() {
+      this.log(`[${this.name}] ✅ Fuerza CLOSED (Current + Target)`);
+      this.currentState = Characteristic.CurrentDoorState.CLOSED;
+      this.targetState = Characteristic.TargetDoorState.CLOSED;
+      this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
+      this.service.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
     }
     
-    async pollHA() {
+    async sendHACommand(command) {
+      try {
+        const response = await fetch(`${this.haUrl}/api/services/switch/${command}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.haToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ entity_id: this.entityId })
+        });
+        
+        if (response.ok) {
+          this.log(`[${this.name}] HA ${command} → 200: OK`);
+        }
+      } catch (error) {
+        this.log(`[${this.name}] HA ${command} ERROR:`, error.message);
+      }
+    }
+    
+    pollHA() {
       this.log(`[${this.name}] Poll: ALWAYS CLOSED (forced)`);
-      this.currentState = Characteristic.CurrentDoorState.CLOSED;
-      this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
+      this.forceClosed();
     }
     
     startPolling() {

@@ -1,65 +1,23 @@
 {
   "name": "homebridge-homeassistant-garagedoor",
-  "version": "1.1.9",
-  "displayName": "HA Garage Door",
-  "description": "Homebridge plugin to control Home Assistant switches as Garage Doors",
+  "version": "1.1.8",
+  "description": "Homebridge plugin to control Home Assistant switches as native Garage Doors in HomeKit",
   "main": "index.js",
-  "keywords": [
-    "homebridge-plugin"
-  ],
-  "author": "torresyago",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["homebridge", "homebridge-plugin", "homeassistant", "garage-door"],
+  "author": "tu-nombre",
   "license": "MIT",
   "engines": {
     "homebridge": ">=1.0.0",
     "node": ">=18.0.0"
   },
-  "dependencies": {
-    "axios": "^1.6.0"
-  },
   "homebridge": {
     "pluginAlias": "HomeAssistantGarageDoor",
-    "pluginConfigSchema": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "type": "string",
-          "required": true,
-          "default": "Garage Door",
-          "order": 1
-        },
-        "haUrl": {
-          "title": "Home Assistant URL",
-          "type": "string",
-          "required": true,
-          "placeholder": "http://192.168.68.239:8123",
-          "order": 2
-        },
-        "haToken": {
-          "title": "HA Long-Lived Access Token",
-          "type": "string",
-          "required": true,
-          "placeholder": "eyJhbGciOiJIUzI1NiIs...",
-          "format": "password",
-          "order": 3
-        },
-        "entityId": {
-          "title": "Entity ID",
-          "type": "string",
-          "required": true,
-          "default": "switch.garage_door",
-          "placeholder": "switch.Puerta1",
-          "order": 4
-        },
-        "pollInterval": {
-          "title": "Poll Interval (seconds)",
-          "type": "number",
-          "default": 30,
-          "minimum": 10,
-          "order": 5
-        }
-      }
-    }
+    "pluginType": "accessory"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "homebridge-homeassistant-garagedoor",
   "version": "1.1.1",
-  "displayName": "Home Assistant Garage Door",
+  "displayName": "HA Garage Door",
   "description": "Homebridge plugin to control Home Assistant switches as Garage Doors",
   "main": "index.js",
   "keywords": [
@@ -17,7 +17,7 @@
     "axios": "^1.6.0"
   },
   "homebridge": {
-    "pluginAlias": "Home Assistant Garage Door",
+    "pluginAlias": "HomeAssistantGarageDoor",
     "pluginConfigSchema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "type": "object",

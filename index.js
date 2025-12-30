@@ -1,12 +1,6 @@
 'use strict';
 
-let fetch;
-try {
-  fetch = require('node-fetch');
-} catch (e) {
-  // Node 18+ fetch global
-  fetch = global.fetch;
-}
+const request = require('request');
 
 module.exports = (homebridge) => {
   const { Service, Characteristic } = homebridge.hap;
@@ -17,7 +11,7 @@ module.exports = (homebridge) => {
       this.name = config.name;
       this.haUrl = config.haUrl;
       this.entityId = config.entityId;
-      this.haToken = config.haToken || process.env.HA_TOKEN;
+      this.haToken = config.haToken;
       this.pollInterval = config.pollInterval || 30;
       
       this.currentState = Characteristic.CurrentDoorState.CLOSED;
@@ -35,7 +29,7 @@ module.exports = (homebridge) => {
       this.startPolling();
     }
     
-    async setTargetState(newState, callback) {
+    setTargetState(newState, callback) {
       if (this.isUpdating) {
         return callback();
       }
@@ -43,7 +37,7 @@ module.exports = (homebridge) => {
       this.log(`[${this.name}] Target state: ${newState === Characteristic.TargetDoorState.OPEN ? 'OPEN' : 'CLOSED'}`);
       
       if (newState === Characteristic.TargetDoorState.OPEN) {
-        await this.sendHACommand('turn_on');
+        this.sendHACommand('turn_on');
         setTimeout(() => {
           this.log(`[${this.name}] ✅ AUTO-CLOSED después OPEN`);
           this.forceClosed();
@@ -62,24 +56,22 @@ module.exports = (homebridge) => {
       setTimeout(() => { this.isUpdating = false; }, 100);
     }
     
-    async sendHACommand(command) {
-      try {
-        const response = await fetch(`${this.haUrl}/api/services/switch/${command}`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.haToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ entity_id: this.entityId })
-        });
-        if (response.ok) {
+    sendHACommand(command) {
+      const url = `${this.haUrl}/api/services/switch/${command}`;
+      request.post({
+        url,
+        headers: {
+          'Authorization': `Bearer ${this.haToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ entity_id: this.entityId })
+      }, (err, res) => {
+        if (res && res.statusCode === 200) {
           this.log(`[${this.name}] HA ${command} → 200 OK`);
         } else {
-          this.log(`[${this.name}] HA ${command} → ${response.status}`);
+          this.log(`[${this.name}] HA ${command} → ${res ? res.statusCode : 'ERROR'}`);
         }
-      } catch (error) {
-        this.log(`[${this.name}] HA ERROR: ${error.message}`);
-      }
+      });
     }
     
     pollHA() {

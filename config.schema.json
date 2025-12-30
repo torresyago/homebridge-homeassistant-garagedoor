@@ -1,34 +1,31 @@
 {
-  "name": "Home Assistant Garage Door",
-  "domain": "homebridge-homeassistant-garagedoor",
-  "exclusive": true,
-  "type": "object",
-  "properties": {
-    "name": {
-      "title": "Name",
-      "required": true,
-      "type": "string",
-      "default": "Garage Door"
-    },
-    "haUrl": {
-      "title": "Home Assistant URL",
-      "required": true,
-      "type": "string",
-      "placeholder": "http://192.168.68.239:8123"
-    },
-    "haToken": {
-      "title": "HA Long-Lived Token",
-      "required": true,
-      "type": "string",
-      "format": "password"
-    },
-    "entityId": {
-      "title": "HA Entity ID",
-      "required": true,
-      "type": "string",
-      "default": "switch.Puerta1",
-      "placeholder": "switch.Puerta1"
-    }
+  "haUrl": {
+    "title": "Home Assistant URL",
+    "type": "string",
+    "required": true,
+    "placeholder": "http://192.168.1.100:8123",
+    "order": 1
+  },
+  "haToken": {
+    "title": "HA Long-Lived Access Token",
+    "type": "string",
+    "required": true,
+    "placeholder": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "order": 2
+  },
+  "entityId": {
+    "title": "Entity ID",
+    "type": "string",
+    "required": true,
+    "default": "switch.garage_door",
+    "placeholder": "switch.Puerta1",
+    "order": 3
+  },
+  "pollInterval": {
+    "title": "Poll Interval (seconds)",
+    "type": "number",
+    "required": false,
+    "default": 30,
+    "order": 4
   }
 }
-

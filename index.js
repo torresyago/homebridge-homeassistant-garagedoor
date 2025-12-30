@@ -16,12 +16,13 @@ module.exports = (homebridge) => {
       
       this.currentState = Characteristic.CurrentDoorState.CLOSED;
       this.targetState = Characteristic.TargetDoorState.CLOSED;
+      this.isUpdating = false; // ✅ ANTI-LOOP
       
       this.service = new Service.GarageDoorOpener(this.name);
       this.service.getCharacteristic(Characteristic.TargetDoorState)
         .on('set', this.setTargetState.bind(this));
       
-      // SIEMPRE FUERZA CLOSED al inicio
+      // SIEMPRE CLOSED al inicio
       this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
       this.service.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
       
@@ -30,28 +31,41 @@ module.exports = (homebridge) => {
     }
     
     async setTargetState(newState, callback) {
+      if (this.isUpdating) {
+        this.log(`[${this.name}] Skip (updating)`);
+        return callback();
+      }
+      
       this.log(`[${this.name}] Target state: ${newState === Characteristic.TargetDoorState.OPEN ? 'OPEN' : 'CLOSED'}`);
       
       if (newState === Characteristic.TargetDoorState.OPEN) {
         await this.sendHACommand('turn_on');
         
-        // ✅ AUTO-CLOSED INMEDIATO (1.5s)
+        // ✅ AUTO-CLOSED (sin loop)
         setTimeout(() => {
-          this.log(`[${this.name}] ✅ AUTO-CLOSED después OPEN (1.5s)`);
+          this.log(`[${this.name}] ✅ AUTO-CLOSED después OPEN`);
           this.forceClosed();
         }, 1500);
       }
       
-      this.forceClosed();
       callback();
     }
     
     forceClosed() {
-      this.log(`[${this.name}] ✅ Fuerza CLOSED (Current + Target)`);
+      if (this.isUpdating) return;
+      
+      this.isUpdating = true;
+      this.log(`[${this.name}] ✅ Fuerza CLOSED`);
+      
       this.currentState = Characteristic.CurrentDoorState.CLOSED;
       this.targetState = Characteristic.TargetDoorState.CLOSED;
+      
+      // ✅ SIN setCharacteristic(TargetDoorState) = NO loop
       this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
-      this.service.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
+      
+      setTimeout(() => {
+        this.isUpdating = false;
+      }, 100);
     }
     
     async sendHACommand(command) {
@@ -66,15 +80,15 @@ module.exports = (homebridge) => {
         });
         
         if (response.ok) {
-          this.log(`[${this.name}] HA ${command} → 200: OK`);
+          this.log(`[${this.name}] HA ${command} → 200 OK`);
         }
       } catch (error) {
-        this.log(`[${this.name}] HA ${command} ERROR:`, error.message);
+        this.log(`[${this.name}] HA ERROR:`, error.message);
       }
     }
     
     pollHA() {
-      this.log(`[${this.name}] Poll: ALWAYS CLOSED (forced)`);
+      this.log(`[${this.name}] Poll: ALWAYS CLOSED`);
       this.forceClosed();
     }
     

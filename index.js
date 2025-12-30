@@ -40,14 +40,15 @@ module.exports = (homebridge) => {
         this.sendHACommand('turn_on');
         setTimeout(() => {
           this.log(`[${this.name}] ✅ AUTO-CLOSED después OPEN`);
-          this.forceClosed();
+          this.forceClosedHard();
         }, 1500);
       }
       
       callback();
     }
     
-    forceClosed() {
+    forceClosedHard() {
+        this.service.setCharacteristic(this.Characteristic.TargetDoorState, this.Characteristic.TargetDoorState.CLOSED);
       if (this.isUpdating) return;
       this.isUpdating = true;
       this.log(`[${this.name}] ✅ Fuerza CLOSED`);

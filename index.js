@@ -22,8 +22,8 @@ module.exports = (homebridge) => {
       this.service.getCharacteristic(Characteristic.TargetDoorState)
         .on('set', this.setTargetState.bind(this));
       
-      this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
-      this.service.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
+      // FUERZA TOTAL CLOSED al inicio
+      this.forceClosedHard();
       
       this.log(`[${this.name}] Initialized - HA: ${this.haUrl} (${this.entityId})`);
       this.startPolling();
@@ -31,6 +31,7 @@ module.exports = (homebridge) => {
     
     setTargetState(newState, callback) {
       if (this.isUpdating) {
+        this.log(`[${this.name}] Skip (updating)`);
         return callback();
       }
       
@@ -38,6 +39,7 @@ module.exports = (homebridge) => {
       
       if (newState === Characteristic.TargetDoorState.OPEN) {
         this.sendHACommand('turn_on');
+        
         setTimeout(() => {
           this.log(`[${this.name}] ✅ AUTO-CLOSED después OPEN`);
           this.forceClosedHard();
@@ -48,13 +50,20 @@ module.exports = (homebridge) => {
     }
     
     forceClosedHard() {
-        this.service.setCharacteristic(this.Characteristic.TargetDoorState, this.Characteristic.TargetDoorState.CLOSED);
       if (this.isUpdating) return;
+      
       this.isUpdating = true;
-      this.log(`[${this.name}] ✅ Fuerza CLOSED`);
+      this.log(`[${this.name}] 🔥 FUERZA TOTAL CLOSED (Home app)`);
+      
       this.currentState = Characteristic.CurrentDoorState.CLOSED;
+      this.targetState = Characteristic.TargetDoorState.CLOSED;
+      
       this.service.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.CLOSED);
-      setTimeout(() => { this.isUpdating = false; }, 100);
+      this.service.setCharacteristic(Characteristic.TargetDoorState, Characteristic.TargetDoorState.CLOSED);
+      
+      setTimeout(() => {
+        this.isUpdating = false;
+      }, 500);
     }
     
     sendHACommand(command) {
@@ -77,7 +86,7 @@ module.exports = (homebridge) => {
     
     pollHA() {
       this.log(`[${this.name}] Poll: ALWAYS CLOSED`);
-      this.forceClosed();
+      this.forceClosedHard();
     }
     
     startPolling() {

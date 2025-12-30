@@ -97,6 +97,10 @@ class HomeAssistantGarageDoor {
         this.log(`[${this.name}] Target state: ${newState}`);
         this.targetState = newState;
         this.sendHACommand(newState);
+        this.service.setCharacteristic(this.Characteristic.CurrentDoorState, 
+          newState === 'OPEN' ? 
+            this.Characteristic.CurrentDoorState.OPEN : 
+            this.Characteristic.CurrentDoorState.CLOSED);
         callback();
       });
 

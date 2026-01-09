@@ -1,0 +1,39 @@
+{
+  "name": {
+    "title": "Name",
+    "type": "string",
+    "required": true,
+    "default": "Garage Door",
+    "order": 1
+  },
+  "haUrl": {
+    "title": "Home Assistant URL",
+    "type": "string",
+    "required": true,
+    "placeholder": "http://192.168.68.239:8123",
+    "order": 2
+  },
+  "haToken": {
+    "title": "HA Long-Lived Access Token",
+    "type": "string",
+    "required": true,
+    "placeholder": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "format": "password",
+    "order": 3
+  },
+  "entityId": {
+    "title": "Entity ID",
+    "type": "string",
+    "required": true,
+    "default": "switch.garage_door",
+    "placeholder": "switch.Puerta1",
+    "order": 4
+  },
+  "pollInterval": {
+    "title": "Poll Interval (seconds)",
+    "type": "number",
+    "default": 30,
+    "minimum": 10,
+    "order": 5
+  }
+}

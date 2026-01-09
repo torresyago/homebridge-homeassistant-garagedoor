@@ -9,7 +9,7 @@
     "homeassistant",
     "garage-door"
   ],
-  "author": "tu-nombre",
+  "author": "Yago Torres",
   "license": "MIT",
   "engines": {
     "homebridge": ">=1.0.0"

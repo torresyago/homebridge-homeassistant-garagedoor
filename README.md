@@ -1,153 +1,154 @@
-Features ✨
-✅ Native Garage Door in Home app + Siri
+# homebridge-homeassistant-garagedoor
 
-✅ Config UI X form (no JSON editing)
+Homebridge plugin to control Home Assistant switches as native Garage Doors in HomeKit.
 
-✅ Bidirectional sync (Home app ↔ Home Assistant)
+[![npm version](https://img.shields.io/npm/v/homebridge-homeassistant-garagedoor)](https://www.npmjs.com/package/homebridge-homeassistant-garagedoor)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-✅ Auto-close after OPEN (3s)
+---
 
-✅ Real-time polling (30s default)
+## English
 
-✅ Error 400 fixed (no redundant requests)
+### Features
 
-📦 Installation
-bash
+- Native Garage Door accessory in the Home app and Siri
+- Config UI X form (no manual JSON editing required)
+- Pulse logic: sends `turn_on` then `turn_off` after 2 seconds (relay-style)
+- Always reports door as CLOSED after each operation
+- Configurable polling interval (default 30s)
+
+### Installation
+
+```bash
 npm install -g homebridge-homeassistant-garagedoor
-⚙️ Configuration (Config UI X)
-text
-Plugins → HA Garage Door → ADD NEW (+)
+```
 
-✅ Name: Puerta1 HA
-✅ HA URL: http://192.168.68.239:8123
-✅ HA Token: eyJhbGciOiJIUzI1NiIs... (Long-Lived Access Token)
-✅ Entity ID: switch.Puerta1
-✅ Poll Interval: 30 (seconds)
-     [SAVE] ✓
-🔑 Home Assistant Long-Lived Access Token
-HA → User Profile (👤 bottom-left)
+### Configuration via Config UI X
 
-Long-Lived Access Tokens → Create Token
+1. Go to **Plugins → HA Garage Door → Add (+)**
+2. Fill in the fields:
+   - **Name**: e.g. `Garage Door`
+   - **Home Assistant URL**: e.g. `http://homeassistant.local:8123`
+   - **Long-Lived Access Token**: your HA token
+   - **Entity ID**: e.g. `switch.garage_relay`
+   - **Poll Interval**: seconds between status checks (default `30`)
+3. Click **Save**
 
-Name: Homebridge Garage Door
+### Manual config.json
 
-Copy token → Paste in Config UI X
-
-Token expires: Never (unless revoked)
-
-📱 Home App Behavior
-text
-✅ Initial: CERRADA
-✅ Tap → OPEN (3s) → Auto CLOSE
-✅ Siri: "Open/close Puerta1 HA"
-✅ Status: Real-time sync via polling
-🛠️ Manual config.json
-json
+```json
 {
   "accessory": "HomeAssistantGarageDoor",
-  "name": "Puerta1 HA",
-  "haUrl": "http://192.168.68.239:8123",
+  "name": "Garage Door",
+  "haUrl": "http://homeassistant.local:8123",
   "haToken": "eyJhbGciOiJIUzI1NiIs...",
-  "entityId": "switch.Puerta1",
+  "entityId": "switch.garage_relay",
   "pollInterval": 30
 }
-🔍 Logs
-text
-[Puerta1 HA] Initialized - HA: http://192.168.68.239:8123 (switch.Puerta1)
-[Puerta1 HA] Target state: OPEN
-[Puerta1 HA] HA turn_on → 200: []
-[Puerta1 HA] Auto-close en 3s...
-[Puerta1 HA] Target state: CLOSED
-[Puerta1 HA] HA turn_off → 200: []
-[Puerta1 HA] Poll: CLOSED (off)
-🚀 Development
-bash
-cd ~/github/homebridge-homeassistant-garagedoor
-npm version patch
-git add .
-git commit -m "vX.X.X: Update"
-git push
-npm publish --access public
-ESPAÑOL
-🚪 homebridge-homeassistant-garagedoor
-Plugin Homebridge para controlar switches de Home Assistant como puertas de garaje nativas en HomeKit.
+```
 
-✨ Características
-✅ Puerta de garaje nativa en app Home + Siri
+### Getting a Home Assistant Long-Lived Access Token
 
-✅ Config UI X con formulario automático
+1. In Home Assistant, click your user avatar (bottom-left)
+2. Scroll to **Long-Lived Access Tokens**
+3. Click **Create Token**, give it a name (e.g. `Homebridge`)
+4. Copy the token and paste it in the plugin config
 
-✅ Sincronización bidireccional (Home ↔ HA)
+### How it works
 
-✅ Auto-cierre tras OPEN (3 segundos)
+When you tap **Open** in the Home app or ask Siri:
 
-✅ Polling en tiempo real (30s por defecto)
+1. Sends `turn_on` to the HA switch entity
+2. Waits 2 seconds
+3. Sends `turn_off` (simulates a momentary relay pulse)
+4. Reports the door as CLOSED again automatically
 
-✅ Error 400 solucionado (sin peticiones redundantes)
+### Expected logs
 
-📦 Instalación
-bash
+```
+[Garage Door] Initialized - HA: http://homeassistant.local:8123 (switch.garage_relay)
+[Garage Door] Target state: OPEN
+[Garage Door] Pulso 2s: turn_off
+[Garage Door] AUTO-CLOSED después pulso
+```
+
+---
+
+## Español
+
+### Características
+
+- Puerta de garaje nativa en la app Home y Siri
+- Formulario automático en Config UI X (sin editar JSON manualmente)
+- Lógica de pulso: envía `turn_on` y luego `turn_off` a los 2 segundos (estilo relé)
+- Siempre informa la puerta como CERRADA tras cada operación
+- Intervalo de polling configurable (30s por defecto)
+
+### Instalación
+
+```bash
 npm install -g homebridge-homeassistant-garagedoor
-⚙️ Configuración (Config UI X)
-text
-Plugins → HA Garage Door → NUEVO (+)
+```
 
-✅ Nombre: Puerta1 HA
-✅ URL HA: http://192.168.68.239:8123
-✅ Token HA: eyJhbGciOiJIUzI1NiIs... (Long-Lived Access Token)
-✅ Entity ID: switch.Puerta1
-✅ Intervalo Poll: 30 (segundos)
-     [GUARDAR] ✓
-🔑 Token Long-Lived Home Assistant
-HA → Perfil Usuario (👤 abajo-izquierda)
+### Configuración con Config UI X
 
-Long-Lived Access Tokens → Crear Token
+1. Ve a **Plugins → HA Garage Door → Nuevo (+)**
+2. Rellena los campos:
+   - **Nombre**: p. ej. `Puerta Garaje`
+   - **URL Home Assistant**: p. ej. `http://homeassistant.local:8123`
+   - **Long-Lived Access Token**: tu token de HA
+   - **Entity ID**: p. ej. `switch.rele_garaje`
+   - **Intervalo Poll**: segundos entre comprobaciones (por defecto `30`)
+3. Haz clic en **Guardar**
 
-Nombre: Homebridge Puerta Garaje
+### config.json manual
 
-Copiar token → Pegar en Config UI X
-
-Token caduca: Nunca (salvo revocación manual)
-
-📱 Comportamiento App Home
-text
-✅ Inicio: CERRADA
-✅ Toca → ABRE (3s) → Auto CIERRA
-✅ Siri: "Abre/cierra Puerta1 HA"
-✅ Estado: Sincronización en tiempo real
-🛠️ config.json manual
-json
+```json
 {
   "accessory": "HomeAssistantGarageDoor",
-  "name": "Puerta1 HA",
-  "haUrl": "http://192.168.68.239:8123",
+  "name": "Puerta Garaje",
+  "haUrl": "http://homeassistant.local:8123",
   "haToken": "eyJhbGciOiJIUzI1NiIs...",
-  "entityId": "switch.Puerta1",
+  "entityId": "switch.rele_garaje",
   "pollInterval": 30
 }
-🔍 Logs esperados
-text
-[Puerta1 HA] Initialized - HA: http://192.168.68.239:8123 (switch.Puerta1)
-[Puerta1 HA] Target state: OPEN
-[Puerta1 HA] HA turn_on → 200: []
-[Puerta1 HA] Auto-close en 3s...
-[Puerta1 HA] Target state: CLOSED
-[Puerta1 HA] HA turn_off → 200: []
-[Puerta1 HA] Poll: CLOSED (off)
-📈 Versiones
-v1.1.3	Auto-close tras OPEN (3s)
-v1.1.2	FIX "Cerrando" → CLOSED
-v1.1.1	UI X alias alignment
-v1.1.0	Config UI X schema inline
-v1.0.9	Full config.schema.json
-🤝 Contributing
-bash
-git clone https://github.com/torresyago/homebridge-homeassistant-garagedoor.git
-cd homebridge-homeassistant-garagedoor
-npm install
-npm run build  # si existe
-📄 License
-MIT License - see LICENSE
+```
 
-⭐ Star this repo if useful!
-¡Dale estrella si te sirve! 🚪✨
+### Cómo obtener un Long-Lived Access Token en Home Assistant
+
+1. En Home Assistant, haz clic en tu avatar de usuario (abajo a la izquierda)
+2. Baja hasta **Long-Lived Access Tokens**
+3. Haz clic en **Crear Token**, dale un nombre (p. ej. `Homebridge`)
+4. Copia el token y pégalo en la configuración del plugin
+
+### Cómo funciona
+
+Al pulsar **Abrir** en la app Home o decírselo a Siri:
+
+1. Envía `turn_on` al switch de Home Assistant
+2. Espera 2 segundos
+3. Envía `turn_off` (simula un pulso momentáneo de relé)
+4. Informa automáticamente la puerta como CERRADA
+
+### Logs esperados
+
+```
+[Puerta Garaje] Initialized - HA: http://homeassistant.local:8123 (switch.rele_garaje)
+[Puerta Garaje] Target state: OPEN
+[Puerta Garaje] Pulso 2s: turn_off
+[Puerta Garaje] AUTO-CLOSED después pulso
+```
+
+---
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
+
+## License
+
+MIT License — see [LICENSE](LICENSE)
+
+---
+
+⭐ Star this repo if it's useful! / ¡Dale estrella si te sirve!

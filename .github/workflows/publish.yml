@@ -16,10 +16,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Publish with OIDC token (Trusted Publishing)
-        run: |
-          OIDC_TOKEN=$(curl -fsSL \
-            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=npm" | jq -r .value)
-          npm config set //registry.npmjs.org/:_authToken "$OIDC_TOKEN"
-          npm publish --provenance --access public
+      - run: npm install -g npm@latest
+      - run: npm publish --provenance --access public
+        env:
+          NPM_CONFIG_REGISTRY: https://registry.npmjs.org/

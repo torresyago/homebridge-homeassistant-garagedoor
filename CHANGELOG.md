@@ -10,6 +10,21 @@ Todos los cambios relevantes de este proyecto se documentan aquí.
 
 ---
 
+## [1.4.0] - 2026-04-01
+
+### Changed / Cambios
+
+- **EN** Converted to **dynamic platform** (`pluginType: platform`) — required for Homebridge plugin verification.
+- **EN** Config changes: devices are now declared under a `devices` array inside the platform block. Each device keeps the same fields (`name`, `haUrl`, `entityId`, `haToken`, `pollInterval`).
+- **EN** Added Node.js 24 to supported engines.
+- **EN** Improved error logging: HTTP errors use `log.error`, debug messages use `log.debug`.
+- **ES** Convertido a **dynamic platform** (`pluginType: platform`) — requisito para la verificación oficial del plugin de Homebridge.
+- **ES** Cambio de configuración: los dispositivos se declaran ahora bajo un array `devices` dentro del bloque de plataforma. Cada dispositivo mantiene los mismos campos (`name`, `haUrl`, `entityId`, `haToken`, `pollInterval`).
+- **ES** Añadido Node.js 24 a los engines soportados.
+- **ES** Mejoras en el log de errores: los errores HTTP usan `log.error`, los mensajes de debug usan `log.debug`.
+
+---
+
 ## [1.3.2] - 2026-04-01
 
 ### Fixed / Corregido

@@ -10,6 +10,14 @@ Todos los cambios relevantes de este proyecto se documentan aquí.
 
 ---
 
+## [1.3.2] - 2026-04-01
+
+### Fixed / Corregido
+- **EN** Republish to ensure README and CHANGELOG are correctly included in the npm package.
+- **ES** Republicación para asegurar que README y CHANGELOG se incluyen correctamente en el paquete npm.
+
+---
+
 ## [1.3.1] - 2026-04-01
 
 ### Changed / Cambios

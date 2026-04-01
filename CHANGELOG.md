@@ -10,6 +10,16 @@ Todos los cambios relevantes de este proyecto se documentan aquí.
 
 ---
 
+## [1.4.1] - 2026-04-01
+
+### Added / Añadido
+- **EN** Backward-compatible config shim: if the old accessory-style fields (`haUrl`, `entityId`, `haToken`) are present at platform level without a `devices` array, the plugin reads them automatically and logs a migration warning.
+- **EN** Migration guide added to README.
+- **ES** Compatibilidad con la config antigua: si los campos de accesorio (`haUrl`, `entityId`, `haToken`) están presentes a nivel de plataforma sin array `devices`, el plugin los lee automáticamente y muestra un aviso en el log.
+- **ES** Guía de migración añadida al README.
+
+---
+
 ## [1.4.0] - 2026-04-01
 
 ### Changed / Cambios

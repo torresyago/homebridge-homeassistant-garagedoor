@@ -27,7 +27,20 @@ class HomeAssistantGarageDoorPlatform {
   }
 
   _discoverDevices() {
-    const devices = this.config.devices || [];
+    let devices = this.config.devices || [];
+
+    // Legacy compatibility: if no devices array but old accessory-style fields exist at platform level
+    if (devices.length === 0 && this.config.haUrl && this.config.entityId && this.config.haToken) {
+      this.log.warn(`[${PLATFORM_NAME}] Legacy config detected. Please migrate to the new format with a "devices" array. See README for instructions.`);
+      devices = [{
+        name:         this.config.name || 'Garage Door',
+        haUrl:        this.config.haUrl,
+        entityId:     this.config.entityId,
+        haToken:      this.config.haToken,
+        pollInterval: this.config.pollInterval,
+      }];
+    }
+
     const configuredUUIDs = new Set();
 
     for (const deviceConfig of devices) {

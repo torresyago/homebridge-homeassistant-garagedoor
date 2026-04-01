@@ -7,6 +7,51 @@ Homebridge plugin to control Home Assistant switches as native Garage Doors in H
 
 ---
 
+## Migrating from v1.3.x / Migración desde v1.3.x
+
+From v1.4.0 the plugin is a **dynamic platform**. You need to move your config from the `accessories` block to `platforms`.
+
+Desde v1.4.0 el plugin es una **dynamic platform**. Debes mover la config del bloque `accessories` a `platforms`.
+
+**Before / Antes:**
+```json
+"accessories": [
+  {
+    "accessory": "HomeAssistantGarageDoor",
+    "name": "Garage Door",
+    "haUrl": "http://homeassistant.local:8123",
+    "haToken": "YOUR_TOKEN",
+    "entityId": "switch.garage_relay",
+    "pollInterval": 30
+  }
+]
+```
+
+**After / Después:**
+```json
+"platforms": [
+  {
+    "platform": "HomeAssistantGarageDoor",
+    "name": "HA Garage Door",
+    "devices": [
+      {
+        "name": "Garage Door",
+        "haUrl": "http://homeassistant.local:8123",
+        "haToken": "YOUR_TOKEN",
+        "entityId": "switch.garage_relay",
+        "pollInterval": 30
+      }
+    ]
+  }
+]
+```
+
+> **Note:** If you update the plugin without changing your config, it will continue to work and log a warning asking you to migrate.
+>
+> **Nota:** Si actualizas el plugin sin cambiar la config, seguirá funcionando y mostrará un aviso en el log pidiendo que migres.
+
+---
+
 ## English
 
 ### Features

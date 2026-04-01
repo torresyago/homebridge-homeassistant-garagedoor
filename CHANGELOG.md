@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-04-01
+
+### Changed
+- Homebridge v2 compatible: replaced `.on('set', callback)` with `.onSet()` API
+- Replaced deprecated `request` library with native `fetch` (Node.js 18+ built-in) — no external dependencies
+- Updated `engines` to `^1.6.0 || ^2.0.0-beta.0` with Node.js 18/20/22 requirement
+- Added `repository`, `bugs` and `homepage` fields so Config UI X shows changelog and release notes correctly
+
 ## [1.2.6] - 2026-03-28
 
 ### Fixed

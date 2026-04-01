@@ -1,6 +1,6 @@
 {
   "name": "homebridge-homeassistant-garagedoor",
-  "version": "1.2.6",
+  "version": "1.3.0",
   "description": "Homebridge plugin to control Home Assistant switches as native Garage Doors in HomeKit",
   "main": "index.js",
   "keywords": [
@@ -11,14 +11,21 @@
   ],
   "author": "Yago Torres",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/torresyago/homebridge-homeassistant-garagedoor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/torresyago/homebridge-homeassistant-garagedoor/issues"
+  },
+  "homepage": "https://github.com/torresyago/homebridge-homeassistant-garagedoor#readme",
   "engines": {
-    "homebridge": ">=1.0.0"
+    "homebridge": "^1.6.0 || ^2.0.0-beta.0",
+    "node": "^18.20.4 || ^20.15.1 || ^22"
   },
   "homebridge": {
     "pluginAlias": "HomeAssistantGarageDoor",
     "pluginType": "accessory"
   },
-  "dependencies": {
-    "request": "^2.88.2"
-  }
+  "dependencies": {}
 }

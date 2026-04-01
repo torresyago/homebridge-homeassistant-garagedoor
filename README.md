@@ -18,10 +18,18 @@ Desde v1.4.0 el plugin es una **dynamic platform**. Debes mover la config del bl
 "accessories": [
   {
     "accessory": "HomeAssistantGarageDoor",
-    "name": "Garage Door",
+    "name": "Garage Door 1",
     "haUrl": "http://homeassistant.local:8123",
     "haToken": "YOUR_TOKEN",
-    "entityId": "switch.garage_relay",
+    "entityId": "switch.garage_relay_1",
+    "pollInterval": 30
+  },
+  {
+    "accessory": "HomeAssistantGarageDoor",
+    "name": "Garage Door 2",
+    "haUrl": "http://homeassistant.local:8123",
+    "haToken": "YOUR_TOKEN",
+    "entityId": "switch.garage_relay_2",
     "pollInterval": 30
   }
 ]
@@ -35,10 +43,17 @@ Desde v1.4.0 el plugin es una **dynamic platform**. Debes mover la config del bl
     "name": "HA Garage Door",
     "devices": [
       {
-        "name": "Garage Door",
+        "name": "Garage Door 1",
         "haUrl": "http://homeassistant.local:8123",
         "haToken": "YOUR_TOKEN",
-        "entityId": "switch.garage_relay",
+        "entityId": "switch.garage_relay_1",
+        "pollInterval": 30
+      },
+      {
+        "name": "Garage Door 2",
+        "haUrl": "http://homeassistant.local:8123",
+        "haToken": "YOUR_TOKEN",
+        "entityId": "switch.garage_relay_2",
         "pollInterval": 30
       }
     ]

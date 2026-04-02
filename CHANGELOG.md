@@ -10,6 +10,14 @@ Todos los cambios relevantes de este proyecto se documentan aquí.
 
 ---
 
+## [1.4.4] - 2026-04-02
+
+### Changed / Cambios
+- **EN** README updated: Homebridge verification submitted notice and badge added.
+- **ES** README actualizado: añadido aviso e insignia de verificación oficial de Homebridge solicitada.
+
+---
+
 ## [1.4.3] - 2026-04-02
 
 ### Added / Añadido

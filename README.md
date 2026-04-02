@@ -4,6 +4,11 @@ Homebridge plugin to control Home Assistant switches as native Garage Doors in H
 
 [![npm version](https://img.shields.io/npm/v/homebridge-homeassistant-garagedoor)](https://www.npmjs.com/package/homebridge-homeassistant-garagedoor)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Homebridge Verified](https://img.shields.io/badge/homebridge-verification%20pending-yellow)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
+
+> **EN** This plugin has been submitted for **official Homebridge verification**. Once approved, it will appear as a verified plugin in the Homebridge plugin catalogue.
+>
+> **ES** Este plugin ha sido enviado para **verificación oficial de Homebridge**. Una vez aprobado, aparecerá como plugin verificado en el catálogo de plugins de Homebridge.
 
 ---
 

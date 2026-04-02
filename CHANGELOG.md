@@ -10,6 +10,14 @@ Todos los cambios relevantes de este proyecto se documentan aquí.
 
 ---
 
+## [1.4.5] - 2026-04-02
+
+### Changed / Cambios
+- **EN** README: added troubleshooting section for users upgrading from v1.3.x — explains how to uninstall, clear cache, restart and reinstall to fix schema caching issues.
+- **ES** README: añadida sección de solución de problemas para usuarios que actualizan desde v1.3.x — explica cómo desinstalar, limpiar caché, reiniciar y reinstalar para resolver problemas de caché del schema.
+
+---
+
 ## [1.4.4] - 2026-04-02
 
 ### Changed / Cambios

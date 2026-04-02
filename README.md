@@ -206,6 +206,38 @@ Al pulsar **Abrir** en la app Home o decírselo a Siri:
 
 ---
 
+## Troubleshooting — after upgrading to v1.4.0 or later
+
+From v1.4.0 this plugin changed from `accessory` to `platform`. If Config UI X still generates `"accessory"` instead of `"platform"` after updating, follow these steps:
+
+1. **Uninstall the plugin** from Config UI X → Plugins → `homebridge-homeassistant-garagedoor` → Uninstall
+2. **Clear the Homebridge accessory cache**: Config UI X → Settings → scroll down → **Remove All Cached Accessories**
+3. **Restart the Homebridge container/service** completely:
+   - Docker: `docker restart homebridge`
+   - systemd: `sudo systemctl restart homebridge`
+4. **Reinstall the plugin** from Config UI X → search `homebridge-homeassistant-garagedoor` → Install
+5. **Add the plugin again** from the Config UI X assistant — it will now generate the correct `"platform"` config
+
+> This is necessary because Config UI X caches the plugin schema. A full restart forces it to reload the schema from the newly installed version.
+
+---
+
+## Solución de problemas — tras actualizar a v1.4.0 o superior
+
+Desde v1.4.0 este plugin cambió de `accessory` a `platform`. Si Config UI X sigue generando `"accessory"` en lugar de `"platform"` tras actualizar, sigue estos pasos:
+
+1. **Desinstala el plugin** desde Config UI X → Plugins → `homebridge-homeassistant-garagedoor` → Desinstalar
+2. **Limpia la caché de accesorios**: Config UI X → Ajustes → baja hasta **Eliminar todos los accesorios en caché**
+3. **Reinicia completamente el contenedor/servicio de Homebridge**:
+   - Docker: `docker restart homebridge`
+   - systemd: `sudo systemctl restart homebridge`
+4. **Vuelve a instalar el plugin** desde Config UI X → busca `homebridge-homeassistant-garagedoor` → Instalar
+5. **Añade el plugin de nuevo** desde el asistente de Config UI X — ahora generará la config correcta con `"platform"`
+
+> Esto es necesario porque Config UI X cachea el schema del plugin. Un reinicio completo fuerza la recarga del schema desde la versión recién instalada.
+
+---
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.

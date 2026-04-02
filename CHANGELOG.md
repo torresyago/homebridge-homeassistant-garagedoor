@@ -10,6 +10,14 @@ Todos los cambios relevantes de este proyecto se documentan aquí.
 
 ---
 
+## [1.4.3] - 2026-04-02
+
+### Added / Añadido
+- **EN** Plugin icon added (`icon.svg` — mdi:garage).
+- **ES** Icono del plugin añadido (`icon.svg` — mdi:garage).
+
+---
+
 ## [1.4.2] - 2026-04-01
 
 ### Fixed / Corregido

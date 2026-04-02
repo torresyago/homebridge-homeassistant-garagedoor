@@ -1,6 +1,6 @@
 {
   "name": "homebridge-homeassistant-garagedoor",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Homebridge plugin to control Home Assistant switches as native Garage Doors in HomeKit",
   "main": "index.js",
   "keywords": [

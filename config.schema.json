@@ -16,30 +16,27 @@
         "items": {
           "title": "Garage Door",
           "type": "object",
+          "required": ["name", "haUrl", "entityId", "haToken"],
           "properties": {
             "name": {
               "title": "Name",
               "type": "string",
-              "required": true,
               "default": "Garage Door",
               "description": "Display name in the Home app"
             },
             "haUrl": {
               "title": "Home Assistant URL",
               "type": "string",
-              "required": true,
               "placeholder": "http://homeassistant.local:8123"
             },
             "entityId": {
               "title": "Entity ID",
               "type": "string",
-              "required": true,
               "placeholder": "switch.garage_relay"
             },
             "haToken": {
               "title": "Long-Lived Access Token",
-              "type": "string",
-              "required": true
+              "type": "string"
             },
             "pollInterval": {
               "title": "Poll Interval (seconds)",

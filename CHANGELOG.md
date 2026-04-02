@@ -10,6 +10,14 @@ Todos los cambios relevantes de este proyecto se documentan aquí.
 
 ---
 
+## [1.4.2] - 2026-04-01
+
+### Fixed / Corregido
+- **EN** Fixed invalid `config.schema.json`: `"required": true` on individual fields is not valid JSON Schema. Replaced with a `"required": [...]` array at the object level, as required by the Homebridge plugin verification.
+- **ES** Corregido `config.schema.json` inválido: `"required": true` en campos individuales no es JSON Schema válido. Reemplazado por un array `"required": [...]` a nivel de objeto, tal como exige la verificación de plugins de Homebridge.
+
+---
+
 ## [1.4.1] - 2026-04-01
 
 ### Added / Añadido
